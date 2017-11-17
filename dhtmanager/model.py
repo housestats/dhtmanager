@@ -6,7 +6,21 @@ from pony.orm import db_session  # NOQA
 db = Database()
 
 
-class Device(db.Entity):
+class HybridPropertyMixin():
+    '''This will include class properties defined with `@property`
+    in the result of the to_dict() method.'''
+
+    def to_dict(self):
+        d = super().to_dict()
+
+        for attr in dir(self.__class__):
+            if isinstance(getattr(self.__class__, attr), property):
+                d[attr] = getattr(self, attr)
+
+        return d
+
+
+class Device(HybridPropertyMixin, db.Entity):
     id = PrimaryKey(str)
     last_seen = Required(datetime.datetime,
                          default=datetime.datetime.utcnow)
@@ -16,11 +30,6 @@ class Device(db.Entity):
     @property
     def last_seen_interval(self):
         return (datetime.datetime.utcnow() - self.last_seen).total_seconds()
-
-    def to_dict(self):
-        d = super().to_dict()
-        d['last_seen_interval'] = self.last_seen_interval
-        return d
 
 
 def bind(user, password, host, database):
