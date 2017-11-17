@@ -79,8 +79,7 @@ def toggle_ota_status(id):
 def index():
     devices = orm.select(d for d in model.Device)
     return flask.render_template('devices.html',
-                                 devices=sorted(devices, key=lambda d: d.id),
-                                 now=datetime.datetime.utcnow())
+                                 devices=sorted(devices, key=lambda d: d.id))
 
 
 @app.route('/device')

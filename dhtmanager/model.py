@@ -13,6 +13,15 @@ class Device(db.Entity):
     address = Optional(str)
     ota_mode = Required(bool)
 
+    @property
+    def last_seen_interval(self):
+        return (datetime.datetime.utcnow() - self.last_seen).total_seconds()
+
+    def to_dict(self):
+        d = super().to_dict()
+        d['last_seen_interval'] = self.last_seen_interval
+        return d
+
 
 def bind(user, password, host, database):
     db.bind(provider='postgres',

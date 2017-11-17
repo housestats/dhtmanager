@@ -10,21 +10,26 @@
     <h1>Devices</h1>
 
     <table id="devices">
+      <thead>
       <tr>
         <th>Device ID</th>
         <th>Address</th>
         <th>Last seen</th>
         <th>OTA Mode</th>
       </tr>
+      </thead>
+      <tbody>
 
 {% for device in devices %}
-<tr id="{{device.id}}">
+<tr id="device_{{device.id}}">
   <td>{{device.id}}</td>
   <td>{{device.address}}</td>
-  <td>{{((now - device.last_seen)|string).split('.')[0]}}</td>
-  <td>{{device.ota_mode}}</td>
+  <td>{{device.last_seen_interval|int}}</td>
+  <td class="toggleota">{{device.ota_mode|lower}}</td>
 </tr>
 {% endfor %}
+
+      </tbody>
     </table>
   </body>
 
