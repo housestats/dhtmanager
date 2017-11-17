@@ -61,6 +61,19 @@ def set_ota_status(id):
     return flask.jsonify(device.to_dict())
 
 
+@app.route('/ota/<id>/toggle')
+@model.db_session
+def toggle_ota_status(id):
+    try:
+        device = model.Device[id]
+    except orm.ObjectNotFound:
+        flask.abort(404)
+
+    device.ota_mode = not device.ota_mode
+
+    return flask.jsonify(device.to_dict())
+
+
 @app.route('/')
 @model.db_session
 def index():
