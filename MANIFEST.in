@@ -1,0 +1,2 @@
+recursive-include dhtmanager/templates *
+recursive-include dhtmanager/static *

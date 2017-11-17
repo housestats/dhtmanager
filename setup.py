@@ -9,6 +9,7 @@ setup(
     license='GPLv3',
     url='https://github.com/larsks/dhtmanager',
     packages=find_packages(),
+    include_package_data=True,
     install_requires=[
         'flask',
         'pony',
