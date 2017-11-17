@@ -1,7 +1,7 @@
 var devtable = document.querySelector('#devices');
 
 var update_table = function(data, xhr) {
-    console.log('updating table');
+    //console.log('updating table');
 
     for (i=0; i < data.length; i++) {
         var row;
