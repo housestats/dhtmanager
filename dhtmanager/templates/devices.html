@@ -3,7 +3,7 @@
 
   <head>
     <title>Devices</title>
-    <style href="/static/dhtmanager.css"></style>
+    <link rel="stylesheet" href="/static/dhtmanager.css"></link>
   </head>
 
   <body>
@@ -16,6 +16,15 @@
         <th>Last seen</th>
         <th>OTA Mode</th>
       </tr>
+
+{% for device in devices %}
+<tr id="{{device.id}}">
+  <td>{{device.id}}</td>
+  <td>{{device.address}}</td>
+  <td>{{((now - device.last_seen)|string).split('.')[0]}}</td>
+  <td>{{device.ota_mode}}</td>
+</tr>
+{% endfor %}
     </table>
   </body>
 

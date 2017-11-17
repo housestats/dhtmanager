@@ -1,3 +1,11 @@
 body {
 	margin: 5ex;
 }
+
+#devices th, #devices td {
+	padding: 1ex;
+}
+
+#devices th {
+	border-bottom: thin solid black;
+}

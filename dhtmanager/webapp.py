@@ -62,8 +62,12 @@ def set_ota_status(id):
 
 
 @app.route('/')
+@model.db_session
 def index():
-    return flask.render_template('devices.html')
+    devices = orm.select(d for d in model.Device)
+    return flask.render_template('devices.html',
+                                 devices=sorted(devices, key=lambda d: d.id),
+                                 now=datetime.datetime.utcnow())
 
 
 @app.route('/device')
