@@ -39,6 +39,8 @@ def get_ota_status(id):
             id=id,
             ota_mode=False)
 
+    device.address = flask.request.remote_addr
+
     return flask.jsonify(device.to_dict())
 
 
@@ -60,7 +62,23 @@ def set_ota_status(id):
 
 
 @app.route('/')
+def index():
+    return flask.render_template('devices.html')
+
+
+@app.route('/device')
 @model.db_session
 def list_devices():
     devices = orm.select(d for d in model.Device)
     return flask.jsonify([device.to_dict() for device in devices])
+
+
+@app.route('/device/<id>')
+@model.db_session
+def get_device_info(id):
+    try:
+        device = model.Device[id]
+    except orm.ObjectNotFound:
+        flask.abort(404)
+
+    return flask.jsonify(device.to_dict())
