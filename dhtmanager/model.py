@@ -32,7 +32,10 @@ class Device(HybridPropertyMixin, db.Entity):
         return (datetime.datetime.utcnow() - self.last_seen).total_seconds()
 
 
-def bind(user, password, host, database):
+def bind(host=None,
+         user=None,
+         password=None,
+         database=None):
     db.bind(provider='postgres',
             user=user,
             password=password,
