@@ -1,15 +1,28 @@
 var devtable = document.querySelector('#devices');
+var devices = {};
 
 var update_table = function(data, xhr) {
-    //console.log('updating table');
+    // mark all devices as unseen
+    for (var devid in devices) {
+        devices[devid].seen = false;
+    }
 
     // update existing rows or add new rows
     for (i=0; i < data.length; i++) {
         var row;
 
         devid = data[i].id
+
+        // mark devices seen as we find them.
+        if (! devices[devid]) {
+            devices[devid] = {seen: true}
+        } else {
+            devices[devid].seen = true;
+        }
+
         row = devtable.querySelector('#device_' + devid);
         if (!row) {
+            devices[devid] = {seen: true};
             row = document.createElement('tr')
             row.setAttribute('id', 'device_' + devid);
             for (attr in data[i]) {
@@ -24,6 +37,15 @@ var update_table = function(data, xhr) {
         row.cells[2].innerHTML = data[i].last_seen_interval.toFixed(0)
         row.cells[3].innerHTML = data[i].ota_mode
         row.cells[3].setAttribute('class', 'toggleota');
+    }
+
+    // look for deleted devices
+    for (var devid in devices) {
+        if (! devices[devid].seen) {
+            delete devices[devid];
+            row = devtable.querySelector('#device_' + devid);
+            row.parentNode.removeChild(row);
+        }
     }
 };
 
