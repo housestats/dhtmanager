@@ -3,6 +3,7 @@ var devtable = document.querySelector('#devices');
 var update_table = function(data, xhr) {
     //console.log('updating table');
 
+    // update existing rows or add new rows
     for (i=0; i < data.length; i++) {
         var row;
 
@@ -42,7 +43,7 @@ var flash = function(e, times) {
 var handle_table_click = function(e) {
     if (e.srcElement.className == 'toggleota') {
         devid = e.srcElement.parentNode.id.slice(7);
-        atomic.ajax({url: '/ota/' + devid + '/toggle'})
+        atomic.ajax({url: '/device/' + devid + '/ota/toggle'})
             .success(function (data, xhr) {
                 flash(e.srcElement.parentNode, 2);
             });

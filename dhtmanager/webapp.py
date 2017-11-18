@@ -44,36 +44,6 @@ def get_ota_status(id):
     return flask.jsonify(device.to_dict())
 
 
-@app.route('/ota/<id>', methods=['POST'])
-@model.db_session
-def set_ota_status(id):
-    try:
-        device = model.Device[id]
-    except orm.ObjectNotFound:
-        device = model.Device(
-            id=id,
-            ota_mode=False)
-
-    ota_mode = (flask.request.form.get('ota_mode', 'false').lower()
-                in ['true', '1', 'yes'])
-    device.ota_mode = ota_mode
-
-    return flask.jsonify(device.to_dict())
-
-
-@app.route('/ota/<id>/toggle')
-@model.db_session
-def toggle_ota_status(id):
-    try:
-        device = model.Device[id]
-    except orm.ObjectNotFound:
-        flask.abort(404)
-
-    device.ota_mode = not device.ota_mode
-
-    return flask.jsonify(device.to_dict())
-
-
 @app.route('/')
 @model.db_session
 def index():
@@ -91,10 +61,70 @@ def list_devices():
 
 @app.route('/device/<id>')
 @model.db_session
-def get_device_info(id):
+def get_device(id):
     try:
         device = model.Device[id]
     except orm.ObjectNotFound:
         flask.abort(404)
+
+    return flask.jsonify(device.to_dict())
+
+
+@app.route('/device/<id>', methods=['DELETE'])
+@model.db_session
+def delete_device(id):
+    try:
+        device = model.Device[id]
+    except orm.ObjectNotFound:
+        flask.abort(404)
+
+    data = device.to_dict()
+    data['deleted'] = True
+    device.delete()
+
+    return flask.jsonify(data)
+
+
+@app.route('/device', methods=['PUT'])
+@model.db_session
+def create_device():
+    data = flask.request.json
+    if not data:
+        flask.abort(500, 'No data')
+
+    try:
+        device = model.Device[data['id']]
+        flask.abort(409)
+    except orm.ObjectNotFound:
+        pass
+
+    device = model.Device(**data)
+    return flask.jsonify(device.to_dict())
+
+
+@app.route('/device/<id>/ota', methods=['POST'])
+@model.db_session
+def set_ota_status(id):
+    try:
+        device = model.Device[id]
+    except orm.ObjectNotFound:
+        flask.abort(404)
+
+    ota_mode = (flask.request.form.get('ota_mode', 'false').lower()
+                in ['true', '1', 'yes'])
+    device.ota_mode = ota_mode
+
+    return flask.jsonify(device.to_dict())
+
+
+@app.route('/device/<id>/ota/toggle')
+@model.db_session
+def toggle_ota_status(id):
+    try:
+        device = model.Device[id]
+    except orm.ObjectNotFound:
+        flask.abort(404)
+
+    device.ota_mode = not device.ota_mode
 
     return flask.jsonify(device.to_dict())
