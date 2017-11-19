@@ -11,20 +11,20 @@ var update_table = function(data, xhr) {
     for (i=0; i < data.length; i++) {
         var row;
 
-        devid = data[i].id
+        device = data[i]
+        devid = device.id
 
         // mark devices seen as we find them.
         if (! devices[devid]) {
-            devices[devid] = {seen: true}
-        } else {
-            devices[devid].seen = true;
+            devices[devid] = {}
         }
+        devices[devid].seen = true;
 
+        // add devices that aren't already in the table.
         row = devtable.querySelector('#device_' + devid);
         if (!row) {
-            devices[devid] = {seen: true};
             row = document.createElement('tr')
-            row.setAttribute('id', 'device_' + devid);
+            row.id = 'device_' + devid;
             for (attr in data[i]) {
                 cell = document.createElement('td');
                 row.appendChild(cell);
@@ -32,10 +32,10 @@ var update_table = function(data, xhr) {
             devtable.appendChild(row);
         }
 
-        row.cells[0].innerHTML = data[i].id
-        row.cells[1].innerHTML = data[i].address
-        row.cells[2].innerHTML = data[i].last_seen_interval.toFixed(0)
-        row.cells[3].innerHTML = data[i].ota_mode
+        row.cells[0].innerHTML = device.id
+        row.cells[1].innerHTML = device.address
+        row.cells[2].innerHTML = device.last_seen_interval.toFixed(0)
+        row.cells[3].innerHTML = device.ota_mode
         row.cells[3].setAttribute('class', 'toggleota');
     }
 
@@ -49,6 +49,8 @@ var update_table = function(data, xhr) {
     }
 };
 
+// called 1/sec in get information about devices from the
+// database.
 var get_device_status = function() {
     atomic.ajax({url: '/device'})
         .success(update_table);
@@ -62,10 +64,13 @@ var flash = function(e, times) {
     setTimeout(function () {flash(e, times - 1);}, 500);
 }
 
+// when someone clicks on the ota mode field, send a request to toggle
+// the value in the database and and flash the row in order to provide
+// feedback.
 var handle_table_click = function(e) {
     if (e.srcElement.className == 'toggleota') {
         devid = e.srcElement.parentNode.id.slice(7);
-        atomic.ajax({url: '/device/' + devid + '/ota/toggle'})
+        atomic.ajax({url: '/device/' + devid + '/ota_mode/toggle'})
             .success(function (data, xhr) {
                 flash(e.srcElement.parentNode, 2);
             });
