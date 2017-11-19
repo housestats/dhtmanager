@@ -25,7 +25,8 @@ class Device(HybridPropertyMixin, db.Entity):
     last_seen = Required(datetime.datetime,
                          default=datetime.datetime.utcnow)
     address = Optional(str)
-    ota_mode = Required(bool)
+    ota_mode = Required(bool,
+                        default=False)
 
     @property
     def last_seen_interval(self):
