@@ -19,10 +19,13 @@ def create_app():
     if 'DHTMANAGER_SETTINGS' in os.environ:
         app.config.from_envvar('DHTMANAGER_SETTINGS')
 
-    model.bind(host=app.config['DB_HOST'],
-               user=app.config['DB_USER'],
-               password=app.config['DB_PASS'],
-               database=app.config['DB_NAME'])
+    try:
+        model.bind(host=app.config['DB_HOST'],
+                   user=app.config['DB_USER'],
+                   password=app.config['DB_PASS'],
+                   database=app.config['DB_NAME'])
+    except KeyError as err:
+        app.logger.error('failed to configure database (missing %s)', err)
 
     return app
 
