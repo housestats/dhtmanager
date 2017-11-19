@@ -113,7 +113,18 @@ def create_device():
     return flask.jsonify(device.to_dict())
 
 
-@app.route('/device/<id>/ota', methods=['POST'])
+@app.route('/device/<id>/<attr>')
+@model.db_session
+def get_device_attr(id, attr):
+    '''Return the value of a single device attribute'''
+    try:
+        device = model.Device[id]
+        return '{}\r\n'.format(json.dumps(getattr(device, attr)))
+    except (orm.ObjectNotFound, AttributeError):
+        flask.abort(404)
+
+
+@app.route('/device/<id>/ota_mode', methods=['POST'])
 @model.db_session
 def set_ota_status(id):
     '''Update the ota_mode of the specified device'''
