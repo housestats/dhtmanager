@@ -1,5 +1,6 @@
 import datetime
 import flask
+import json
 import os
 
 from pony import orm
@@ -25,12 +26,14 @@ def create_app():
 
     return app
 
+
 app = create_app()
 
 
 @app.route('/ota/<id>')
 @model.db_session
 def get_ota_status(id):
+    '''Called by devices to determine if they should enter ota mode'''
     try:
         device = model.Device[id]
         device.last_seen = datetime.datetime.utcnow()
@@ -47,6 +50,7 @@ def get_ota_status(id):
 @app.route('/')
 @model.db_session
 def index():
+    '''Provides a simple web ui for managing devices'''
     devices = orm.select(d for d in model.Device)
     return flask.render_template('devices.html',
                                  devices=sorted(devices, key=lambda d: d.id))
@@ -55,6 +59,7 @@ def index():
 @app.route('/device')
 @model.db_session
 def list_devices():
+    '''Returns a JSON list of known devices'''
     devices = orm.select(d for d in model.Device)
     return flask.jsonify([device.to_dict() for device in devices])
 
@@ -62,6 +67,7 @@ def list_devices():
 @app.route('/device/<id>')
 @model.db_session
 def get_device(id):
+    '''Returns a JSON dictionary with informatino about a single device'''
     try:
         device = model.Device[id]
     except orm.ObjectNotFound:
@@ -73,6 +79,7 @@ def get_device(id):
 @app.route('/device/<id>', methods=['DELETE'])
 @model.db_session
 def delete_device(id):
+    '''Delete a device'''
     try:
         device = model.Device[id]
     except orm.ObjectNotFound:
@@ -88,6 +95,7 @@ def delete_device(id):
 @app.route('/device', methods=['PUT'])
 @model.db_session
 def create_device():
+    '''Create a new device'''
     data = flask.request.json
     if not data:
         flask.abort(500, 'No data')
@@ -105,6 +113,7 @@ def create_device():
 @app.route('/device/<id>/ota', methods=['POST'])
 @model.db_session
 def set_ota_status(id):
+    '''Update the ota_mode of the specified device'''
     try:
         device = model.Device[id]
     except orm.ObjectNotFound:
@@ -117,9 +126,10 @@ def set_ota_status(id):
     return flask.jsonify(device.to_dict())
 
 
-@app.route('/device/<id>/ota/toggle')
+@app.route('/device/<id>/ota_mode/toggle')
 @model.db_session
 def toggle_ota_status(id):
+    '''Toggle the ota_mode of the specified device'''
     try:
         device = model.Device[id]
     except orm.ObjectNotFound:
